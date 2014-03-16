@@ -3,6 +3,7 @@ from postmonkey import PostMonkey
 from mandrill import Mandrill
 from pprint import pformat
 import datetime
+import pytz
 from .basic_auth import requires_auth
 
 app = Flask(__name__)
@@ -95,7 +96,8 @@ def send():
     for mem in members['data']:
         emails.append(mem['email'])
 
-    now = datetime.datetime.now()
+    eastern = pytz.timezone('US/Eastern')
+    now = eastern.localize(datetime.datetime.now())
     msg_text = "%s\n\n--------\n\nE-mail generated at %s" % (msg_text, now)
 
     for email in emails:
@@ -109,7 +111,7 @@ def send():
             }]
         }
 
-        app.logger.debug("sending to %s" % (email))
+        app.logger.debug("sending to %s at %s" % (email, now))
 
         resp = md.messages.send(message, async=True)
 
