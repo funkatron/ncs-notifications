@@ -37,6 +37,16 @@
 						<textarea rows="10" cols="78" name="message" id="message-textarea" placeholder="Enter message text">{{message}}</textarea>
 					</div>
 				</div>
+				<div class="row">
+					<div class="large-2 columns">
+					</div>
+					<div class="large-10 columns">
+
+						<label for="test_list_checkbox">
+							<input type="checkbox" id="test_list_checkbox" name="test_list" value="1" {% if test_list %}checked="checked"{% endif %}> Send to TEST LIST
+						</label>
+					</div>
+				</div>
 
 				<input class="button" type="submit" value="Submit">
 

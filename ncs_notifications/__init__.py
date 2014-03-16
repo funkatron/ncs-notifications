@@ -23,7 +23,6 @@ def home():
                            default_from_email=app.config["DEFAULT_FROM_EMAIL"])
 
 
-
 @app.route('/edit', methods=['POST'])
 @requires_auth
 def edit():
@@ -35,14 +34,15 @@ def edit():
     subject = request.form.get('subject')
     from_email = request.form.get('from_email')
     from_name = request.form.get('from_name')
+    test_list = request.form.get('test_list', None)
 
     return render_template('post_form.html',
                            page_title="E-Mail Post Form",
                            default_from_name=from_name,
                            default_from_email=from_email,
                            subject=subject,
-                           message=msg_text)
-
+                           message=msg_text,
+                           test_list=test_list)
 
 
 @app.route('/review', methods=['POST'])
@@ -56,12 +56,18 @@ def review():
     subject = request.form.get('subject')
     from_email = request.form.get('from_email')
     from_name = request.form.get('from_name')
+    test_list = request.form.get('test_list', None)
 
     app.logger.debug(from_email)
     app.logger.debug(from_name)
 
+    if (test_list):
+        list_id = app.config['PM_TEST_LIST_ID']
+    else:
+        list_id = app.config['PM_LIST_ID']
+
     pm = PostMonkey(app.config['PM_API_KEY'])
-    list_info = pm.lists(filters={'list_id':app.config['PM_LIST_ID']})
+    list_info = pm.lists(filters={'list_id': list_id})
     list_name = list_info['data'][0]['name']
     list_count = list_info['data'][0]['stats']['member_count']
 
@@ -71,6 +77,7 @@ def review():
                            from_email=from_email,
                            list_name=list_name,
                            list_count=list_count,
+                           test_list=test_list,
                            message=message,
                            subject=subject)
 
@@ -86,11 +93,19 @@ def send():
     subject = request.form.get('subject')
     from_email = request.form.get('from_email')
     from_name = request.form.get('from_name')
+    test_list = request.form.get('test_list', None)
+
+    if (test_list):
+        list_id = app.config['PM_TEST_LIST_ID']
+        app.logger.debug("sending to test list %s" % (list_id))
+    else:
+        list_id = app.config['PM_LIST_ID']
+        app.logger.debug("sending to LIVE list %s" % (list_id))
 
     pm = PostMonkey(app.config['PM_API_KEY'])
     md = Mandrill(app.config['MD_API_KEY'])
 
-    members = pm.listMembers(id=app.config['PM_LIST_ID'], limit=1000)
+    members = pm.listMembers(id=list_id, limit=1000)
     emails = []
 
     for mem in members['data']:
@@ -120,4 +135,3 @@ def send():
     flash("%s e-mails sent!" % len(emails))
 
     return redirect(url_for('home'))
-
