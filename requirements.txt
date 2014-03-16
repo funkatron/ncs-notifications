@@ -9,6 +9,7 @@ facebook-sdk==0.4.0
 httplib2==0.7.7
 mandrill==1.0.46
 postmonkey==1.0a4
+pytz==2014.1
 requests==1.2.3
 twilio==3.4.1
 twitter==1.9.0
